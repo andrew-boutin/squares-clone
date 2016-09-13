@@ -2,14 +2,16 @@
 Author: andy_boutin
 Created on: 9/12/16
 
-Gather blue blobs to get bigger, avoid red blobs.
+Gather black blobs to get bigger, avoid red blobs.
 """
 import sys
 import random
 from enum import Enum
 import pygame
 
-background_color = 150, 150, 80
+background_color = 255, 255, 255
+red = 255, 0, 0
+black = 0, 0, 0
 
 
 class Direction(Enum):
@@ -17,19 +19,18 @@ class Direction(Enum):
 
 
 class Block():
-    def __init__(self):
+    def __init__(self, color):
         self.dir = random.choice(list(Direction))
-
-        self.size = 100
-        self.color = 80, 80, 150
+        self.speed = random.randint(1, 5)
+        self.color = color
         self.thickness = 0
-        # Choose size
-        self.x = 350
-        self.y = 350
+
+        # Choose size between a bound
+        self.size = 100
 
         # Choose starting x or y
-        # Choose speed
-        self.speed = random.randint(1, 5)
+        self.x = 350
+        self.y = 350
 
     def _update_loc(self):
         if self.dir == Direction.down:
@@ -59,6 +60,17 @@ class Block():
 
         return False
 
+
+class Enemy(Block):
+    def __init__(self):
+        super().__init__(black)
+
+
+class Friendly(Block):
+    def __init__(self):
+        super().__init__(red)
+
+
 pygame.init()
 
 infoObject = pygame.display.Info()
@@ -69,7 +81,8 @@ screen = pygame.display.set_mode((screen_size, screen_size), 0, 32)
 
 clock = pygame.time.Clock()
 
-block = Block()
+enemy = Enemy()
+friendly = Friendly()
 
 while True:
     # Control the frame rate
@@ -83,8 +96,15 @@ while True:
 
     screen.fill(background_color)
 
-    block.update()
+    if enemy.out_of_bounds():
+        enemy = Enemy()
+    else:
+        enemy.update()
+
+    if friendly.out_of_bounds():
+        friendly = Friendly()
+    else:
+        friendly.update()
 
     # Update the UI
     pygame.display.flip()
-
