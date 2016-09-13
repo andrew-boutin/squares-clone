@@ -49,13 +49,13 @@ class Block():
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size), self.thickness)
 
     def out_of_bounds(self):
-        if self.x < 0:
+        if self.x + self.size < 0:
             return True
-        if self.x + self.size > screen_size:
+        if self.x > screen_size:
             return True
-        if self.y < 0:
+        if self.y + self.size < 0:
             return True
-        if self.y + self.size > screen_size:
+        if self.y > screen_size:
             return True
 
         return False
