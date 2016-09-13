@@ -13,6 +13,9 @@ background_color = 255, 255, 255
 red = 255, 0, 0
 black = 0, 0, 0
 
+num_enemies = 20
+num_friendlies = 20
+
 
 class Direction(Enum):
     up, down, left, right = range(4)
@@ -20,17 +23,10 @@ class Direction(Enum):
 
 class Block():
     def __init__(self, color):
-        self.dir = random.choice(list(Direction))
-        self.speed = random.randint(1, 5)
         self.color = color
         self.thickness = 0
 
-        # Choose size between a bound
-        self.size = 100
-
-        # Choose starting x or y
-        self.x = 350
-        self.y = 350
+        self._respawn()
 
     def _update_loc(self):
         if self.dir == Direction.down:
@@ -43,12 +39,25 @@ class Block():
             self.x += self.speed
 
     def update(self):
-        if not self.out_of_bounds():
+        if self._out_of_bounds():
+            self._respawn()
+        else:
             self._update_loc()
 
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size), self.thickness)
 
-    def out_of_bounds(self):
+    def _respawn(self):
+        self.dir = random.choice(list(Direction))
+        self.speed = random.randint(1, 5)
+
+        # Choose size between a bound
+        self.size = 20
+
+        # Choose starting x or y
+        self.x = random.randint(0, screen_size)
+        self.y = random.randint(0, screen_size)
+
+    def _out_of_bounds(self):
         if self.x + self.size < 0:
             return True
         if self.x > screen_size:
@@ -81,8 +90,13 @@ screen = pygame.display.set_mode((screen_size, screen_size), 0, 32)
 
 clock = pygame.time.Clock()
 
-enemy = Enemy()
-friendly = Friendly()
+blocks = []
+
+for i in range(num_enemies):
+    blocks.append(Enemy())
+
+for i in range(num_friendlies):
+    blocks.append(Friendly())
 
 while True:
     # Control the frame rate
@@ -96,15 +110,8 @@ while True:
 
     screen.fill(background_color)
 
-    if enemy.out_of_bounds():
-        enemy = Enemy()
-    else:
-        enemy.update()
-
-    if friendly.out_of_bounds():
-        friendly = Friendly()
-    else:
-        friendly.update()
+    for block in blocks:
+        block.update()
 
     # Update the UI
     pygame.display.flip()
