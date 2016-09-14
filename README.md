@@ -1,7 +1,6 @@
 # Squares Clone
-===============
 
-Clone of the game Squares for learning pygame.
+Clone of the game Squares for learning *pygame*.
 
 ### Setup on Linux Ubuntu 14.04
 
