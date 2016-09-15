@@ -20,6 +20,15 @@ num_enemies = 20
 num_friendlies = 20
 
 
+class GameManager():
+    """Manages admin aspects of the game."""
+
+    def __init__(self):
+        """Initialize the game manager."""
+        self.score = 0
+        self.game_over = False
+
+
 class Player():
     """Handles updating the player's cursor."""
 
@@ -121,7 +130,7 @@ class Block():
         if self._out_of_bounds():
             self._respawn()
         elif player.rect.colliderect(self.rect):
-            player.size += 1
+            self._handle_collision()
             self._respawn()
         else:
             self._update_loc()
@@ -135,7 +144,11 @@ class Enemy(Block):
 
     def __init__(self):
         """Set up the block."""
-        super().__init__(black)
+        super().__init__(red)
+
+    def _handle_collision(self):
+        """Signal for the game to end."""
+        game_manager.game_over = True
 
 
 class Friendly(Block):
@@ -143,7 +156,12 @@ class Friendly(Block):
 
     def __init__(self):
         """Set up the block."""
-        super().__init__(red)
+        super().__init__(black)
+
+    def _handle_collision(self):
+        """Increase the player's cursor and increment the score."""
+        game_manager.score += 1
+        player.size += 1
 
 
 pygame.init()
@@ -155,6 +173,8 @@ screen = pygame.display.set_mode((screen_size, screen_size), 0, 32)
 
 clock = pygame.time.Clock()
 
+game_manager = GameManager()
+
 player = Player()
 
 blocks = []
@@ -165,7 +185,7 @@ for i in range(num_enemies):
 for i in range(num_friendlies):
     blocks.append(Friendly())
 
-while True:
+while not game_manager.game_over:
     # Control the frame rate
     time_passed = clock.tick(50)
 
