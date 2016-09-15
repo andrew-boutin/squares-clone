@@ -9,7 +9,7 @@ import random
 from enum import Enum
 import pygame
 
-background_color = 255, 255, 255
+white = 255, 255, 255
 red = 255, 0, 0
 black = 0, 0, 0
 blue = 0, 0, 255
@@ -18,6 +18,33 @@ solid_shape = 0
 
 num_enemies = 20
 num_friendlies = 20
+
+
+class Player():
+    """Handles updating the player's cursor."""
+
+    def __init__(self):
+        """Set up the player and their cursor."""
+        self.color = blue
+        self.size = 2
+        self.x = screen_size / 2
+        self.y = screen_size / 2
+
+        self._update_rect()
+
+    def _update_rect(self):
+        """Update the player's location boundary marker."""
+        half_size = self.size / 2
+        self.rect = pygame.Rect(self.x - half_size, self.y - half_size, self.size, self.size)
+
+    def update(self):
+        """Update the player's location and redraw the cursor on the screen."""
+        x, y = pygame.mouse.get_pos()
+        self.x = x
+        self.y = y
+
+        self._update_rect()
+        pygame.draw.rect(screen, self.color, self.rect, solid_shape)
 
 
 class Direction(Enum):
@@ -83,14 +110,24 @@ class Block():
             else:
                 self.x = -self.size
 
+        self._update_rect()
+
+    def _update_rect(self):
+        """Update rectangle representing current location."""
+        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
+
     def update(self):
         """Update the location or respawn the block and then redraw."""
         if self._out_of_bounds():
             self._respawn()
+        elif player.rect.colliderect(self.rect):
+            player.size += 1
+            self._respawn()
         else:
             self._update_loc()
 
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size), solid_shape)
+        self._update_rect()
+        pygame.draw.rect(screen, self.color, self.rect, solid_shape)
 
 
 class Enemy(Block):
@@ -118,6 +155,8 @@ screen = pygame.display.set_mode((screen_size, screen_size), 0, 32)
 
 clock = pygame.time.Clock()
 
+player = Player()
+
 blocks = []
 
 for i in range(num_enemies):
@@ -136,15 +175,12 @@ while True:
             pygame.quit()
             sys.exit()
 
-    screen.fill(background_color)
+    screen.fill(white)
+
+    player.update()
 
     for block in blocks:
         block.update()
-
-    mouse_size = 20
-    half_mouse_size = mouse_size / 2
-    mouse_x, mouse_y = pygame.mouse.get_pos()
-    pygame.draw.rect(screen, blue, (mouse_x - half_mouse_size, mouse_y - half_mouse_size, mouse_size, mouse_size), solid_shape)
 
     # Update the UI
     pygame.display.flip()

@@ -1,6 +1,6 @@
 # Squares Clone
 
-Clone of the game Squares for learning *pygame*.
+Clone of the game [Squares 2](http://www.albinoblacksheep.com/games/squares2) for learning **[pygame](http://pygame.org/hifi.html)**.
 
 ### Setup on Linux Ubuntu 14.04
 
