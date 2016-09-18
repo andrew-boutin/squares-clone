@@ -2,7 +2,9 @@
 Author: andy_boutin
 Created on: 9/12/16
 
-Gather black blobs to get bigger, avoid red blobs.
+Clone of the game Squares 2.
+Gather black squares for points and to increase size. Avoid red squares
+or game over.
 """
 import sys
 import random
@@ -32,11 +34,13 @@ class TextView():
         self.set_title(title)
         
     def set_title(self, title):
+        """Update the text to display."""
         self.surface = self.font.render(title, True, self.text_color)
         self.rect = self.surface.get_rect(topleft=self.pos)
 
     def update(self):
         """Redraw the text view on the screen."""
+        #pygame.draw.rect(screen, blue, self.rect, 1)
         screen.blit(self.surface, self.pos)
 
 
@@ -54,8 +58,8 @@ class GameManager():
 
     def start_main_loop(self):
         """Main game logic loop that handles UI and game play."""
-        start_game = TextView(300, 200, "Play", text_color=gray, font_size=35)
-        exit_game = TextView(300, 250, "Exit", text_color=gray, font_size=35)
+        start_game = TextView(240, 200, "Play", text_color=gray, font_size=100)
+        exit_game = TextView(250, 320, "Exit", text_color=gray, font_size=100)
         self.player = Player()
 
         while True:
@@ -82,7 +86,7 @@ class GameManager():
             pygame.display.update()
 
     def _check_exit(self, event):
-        """"""
+        """Determine if the game should exit."""
         if event.type == pygame.QUIT:
             self._exit()
 
