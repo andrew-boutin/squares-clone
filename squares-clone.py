@@ -13,6 +13,7 @@ white = 255, 255, 255
 red = 255, 0, 0
 black = 0, 0, 0
 blue = 0, 0, 255
+gray = 96, 96, 96
 
 solid_shape = 0
 
@@ -21,21 +22,22 @@ num_friendlies = 20
 
 
 class TextView():
-    """Rectangle with text in center."""
+    """Displays text on the screen."""
 
-    def __init__(self, x, y, width, height, title):
+    def __init__(self, x, y, title, text_color=black, font_size=25):
         """Set up the text view."""
-        self.title = title
-        self.font = pygame.font.SysFont('Arial', 25)
-        self.x = x
-        self.y = y
-        self.surface = self.font.render(self.title, True, black)
-        self.rect = pygame.Rect(x, y, width, height)
+        self.font = pygame.font.SysFont('Arial', font_size)
+        self.pos = (x, y)
+        self.text_color = text_color
+        self.set_title(title)
+        
+    def set_title(self, title):
+        self.surface = self.font.render(title, True, self.text_color)
+        self.rect = self.surface.get_rect(topleft=self.pos)
 
     def update(self):
         """Redraw the text view on the screen."""
-        pygame.draw.rect(screen, blue, self.rect, 2)
-        screen.blit(self.surface, (self.x, self.y))
+        screen.blit(self.surface, self.pos)
 
 
 class GameManager():
@@ -52,8 +54,8 @@ class GameManager():
 
     def start_main_loop(self):
         """Main game logic loop that handles UI and game play."""
-        start_game = TextView(200, 100, 100, 50, "Play")
-        exit_game = TextView(200, 150, 100, 50, "Exit")
+        start_game = TextView(300, 200, "Play", text_color=gray, font_size=35)
+        exit_game = TextView(300, 250, "Exit", text_color=gray, font_size=35)
         self.player = Player()
 
         while True:
@@ -66,6 +68,8 @@ class GameManager():
             mpos = pygame.mouse.get_pos()
 
             for event in pygame.event.get():
+                self._check_exit(event)
+                
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if exit_game.rect.collidepoint(mpos):
                         self._exit()
@@ -77,9 +81,16 @@ class GameManager():
 
             pygame.display.update()
 
+    def _check_exit(self, event):
+        """"""
+        if event.type == pygame.QUIT:
+            self._exit()
+
     def _start_game(self):
         """Run the actual game loop."""
         self.player_alive = True
+        self.score = 0
+        score = TextView(300, 300, "", text_color=gray, font_size=100)
         blocks = []
 
         for i in range(num_enemies):
@@ -94,10 +105,11 @@ class GameManager():
 
             # exit if window is closed
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self._exit()
+                self._check_exit(event)
 
             screen.fill(white)
+            score.set_title(str(self.score))
+            score.update()
 
             self.player.update()
 
