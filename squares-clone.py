@@ -20,13 +20,92 @@ num_enemies = 20
 num_friendlies = 20
 
 
+class Button():
+    """"""
+
+    def __init__(self, x, y, width, height, title):
+        """"""
+        self.title = title
+        self.font = pygame.font.SysFont('Arial', 25)
+        self.x = x
+        self.y = y
+        self.surface = self.font.render(self.title, True, black)
+        self.rect = pygame.Rect(x, y, width, height)
+
+    def update(self):
+        """"""
+        pygame.draw.rect(screen, blue, self.rect, 2)
+        screen.blit(self.surface, (self.x, self.y))
+
+
 class GameManager():
     """Manages admin aspects of the game."""
 
     def __init__(self):
         """Initialize the game manager."""
         self.score = 0
-        self.game_over = False
+
+    def exit(self):
+        """Gracefully shut down the game."""
+        pygame.quit()
+        sys.exit()
+
+    def start_main_loop(self):
+        """Main game logic loop that handles UI and game play."""
+        start_game = Button(200, 100, 100, 50, "Play")
+        exit_button = Button(200, 150, 100, 50, "Exit")
+        self.player = Player()
+
+        while True:
+            time_passed = clock.tick(50)
+
+            screen.fill(white)
+            start_game.update()
+            exit_button.update()
+
+            mpos = pygame.mouse.get_pos()
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if exit_button.rect.collidepoint(mpos):
+                        self.exit()
+                    elif start_game.rect.collidepoint(mpos):
+                        self.start_game()
+                        self.player.reset()
+
+            self.player.update()
+
+            pygame.display.update()
+
+    def start_game(self):
+        """Run the actual game loop."""
+        self.player_alive = True
+        blocks = []
+
+        for i in range(num_enemies):
+            blocks.append(Enemy())
+
+        for i in range(num_friendlies):
+            blocks.append(Friendly())
+
+        while self.player_alive:
+            # Control the frame rate
+            time_passed = clock.tick(50)
+
+            # exit if window is closed
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit()
+
+            screen.fill(white)
+
+            self.player.update()
+
+            for block in blocks:
+                block.update()
+
+            # Update the UI
+            pygame.display.flip()
 
 
 class Player():
@@ -54,6 +133,12 @@ class Player():
 
         self._update_rect()
         pygame.draw.rect(screen, self.color, self.rect, solid_shape)
+
+    def reset(self):
+        """Bring the player back to its starting state."""
+        self.size = 2
+
+        self._update_rect()
 
 
 class Direction(Enum):
@@ -129,7 +214,7 @@ class Block():
         """Update the location or respawn the block and then redraw."""
         if self._out_of_bounds():
             self._respawn()
-        elif player.rect.colliderect(self.rect):
+        elif game_manager.player.rect.colliderect(self.rect):
             self._handle_collision()
             self._respawn()
         else:
@@ -148,7 +233,7 @@ class Enemy(Block):
 
     def _handle_collision(self):
         """Signal for the game to end."""
-        game_manager.game_over = True
+        game_manager.player_alive = False
 
 
 class Friendly(Block):
@@ -161,11 +246,12 @@ class Friendly(Block):
     def _handle_collision(self):
         """Increase the player's cursor and increment the score."""
         game_manager.score += 1
-        player.size += 1
+        game_manager.player.size += 1
 
 
 pygame.init()
 pygame.mouse.set_visible(False)
+pygame.display.set_caption('Squares Clone')
 
 infoObject = pygame.display.Info()
 screen_size = 700 #screen_size = infoObject.current_h
@@ -174,33 +260,4 @@ screen = pygame.display.set_mode((screen_size, screen_size), 0, 32)
 clock = pygame.time.Clock()
 
 game_manager = GameManager()
-
-player = Player()
-
-blocks = []
-
-for i in range(num_enemies):
-    blocks.append(Enemy())
-
-for i in range(num_friendlies):
-    blocks.append(Friendly())
-
-while not game_manager.game_over:
-    # Control the frame rate
-    time_passed = clock.tick(50)
-
-    # exit if window is closed
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-
-    screen.fill(white)
-
-    player.update()
-
-    for block in blocks:
-        block.update()
-
-    # Update the UI
-    pygame.display.flip()
+game_manager.start_main_loop()
