@@ -20,11 +20,11 @@ num_enemies = 20
 num_friendlies = 20
 
 
-class Button():
-    """"""
+class TextView():
+    """Rectangle with text in center."""
 
     def __init__(self, x, y, width, height, title):
-        """"""
+        """Set up the text view."""
         self.title = title
         self.font = pygame.font.SysFont('Arial', 25)
         self.x = x
@@ -33,7 +33,7 @@ class Button():
         self.rect = pygame.Rect(x, y, width, height)
 
     def update(self):
-        """"""
+        """Redraw the text view on the screen."""
         pygame.draw.rect(screen, blue, self.rect, 2)
         screen.blit(self.surface, (self.x, self.y))
 
@@ -45,15 +45,15 @@ class GameManager():
         """Initialize the game manager."""
         self.score = 0
 
-    def exit(self):
+    def _exit(self):
         """Gracefully shut down the game."""
         pygame.quit()
         sys.exit()
 
     def start_main_loop(self):
         """Main game logic loop that handles UI and game play."""
-        start_game = Button(200, 100, 100, 50, "Play")
-        exit_button = Button(200, 150, 100, 50, "Exit")
+        start_game = TextView(200, 100, 100, 50, "Play")
+        exit_game = TextView(200, 150, 100, 50, "Exit")
         self.player = Player()
 
         while True:
@@ -61,23 +61,23 @@ class GameManager():
 
             screen.fill(white)
             start_game.update()
-            exit_button.update()
+            exit_game.update()
 
             mpos = pygame.mouse.get_pos()
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if exit_button.rect.collidepoint(mpos):
-                        self.exit()
+                    if exit_game.rect.collidepoint(mpos):
+                        self._exit()
                     elif start_game.rect.collidepoint(mpos):
-                        self.start_game()
+                        self._start_game()
                         self.player.reset()
 
             self.player.update()
 
             pygame.display.update()
 
-    def start_game(self):
+    def _start_game(self):
         """Run the actual game loop."""
         self.player_alive = True
         blocks = []
@@ -95,7 +95,7 @@ class GameManager():
             # exit if window is closed
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.exit()
+                    self._exit()
 
             screen.fill(white)
 
@@ -114,11 +114,11 @@ class Player():
     def __init__(self):
         """Set up the player and their cursor."""
         self.color = blue
-        self.size = 2
+        self.starting_size = 10
         self.x = screen_size / 2
         self.y = screen_size / 2
 
-        self._update_rect()
+        self.reset()
 
     def _update_rect(self):
         """Update the player's location boundary marker."""
@@ -136,7 +136,7 @@ class Player():
 
     def reset(self):
         """Bring the player back to its starting state."""
-        self.size = 2
+        self.size = self.starting_size
 
         self._update_rect()
 
