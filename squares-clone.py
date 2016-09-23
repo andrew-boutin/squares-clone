@@ -50,6 +50,8 @@ class GameManager():
     def __init__(self):
         """Initialize the game manager."""
         self.score = 0
+        self.high_score = 0
+        self.high_score_text = "High Score: {}"
 
     def _exit(self):
         """Gracefully shut down the game."""
@@ -60,6 +62,7 @@ class GameManager():
         """Main game logic loop that handles UI and game play."""
         start_game = TextView(240, 200, "Play", text_color=gray, font_size=100)
         exit_game = TextView(250, 320, "Exit", text_color=gray, font_size=100)
+        high_score = TextView(260, 440, "", text_color=gray, font_size=25)
         self.player = Player()
 
         while True:
@@ -68,6 +71,9 @@ class GameManager():
             screen.fill(white)
             start_game.update()
             exit_game.update()
+
+            if self.high_score != 0:
+                high_score.update()
 
             mpos = pygame.mouse.get_pos()
 
@@ -80,6 +86,7 @@ class GameManager():
                     elif start_game.rect.collidepoint(mpos):
                         self._start_game()
                         self.player.reset()
+                        high_score.set_title(self.high_score_text.format(self.high_score))
 
             self.player.update()
 
@@ -122,6 +129,9 @@ class GameManager():
 
             # Update the UI
             pygame.display.flip()
+            
+        if self.score > self.high_score:
+            self.high_score = self.score
 
 
 class Player():
