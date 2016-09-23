@@ -52,6 +52,7 @@ class GameManager():
         self.score = 0
         self.high_score = 0
         self.high_score_text = "High Score: {}"
+        self.last_score_text = "Last Score: {}"
 
     def _exit(self):
         """Gracefully shut down the game."""
@@ -62,7 +63,8 @@ class GameManager():
         """Main game logic loop that handles UI and game play."""
         start_game = TextView(240, 200, "Play", text_color=gray, font_size=100)
         exit_game = TextView(250, 320, "Exit", text_color=gray, font_size=100)
-        high_score = TextView(260, 440, "", text_color=gray, font_size=25)
+        high_score = TextView(260, 440, "", text_color=gray)
+        last_score = TextView(261, 480, "", text_color=gray)
         self.player = Player()
 
         while True:
@@ -72,8 +74,8 @@ class GameManager():
             start_game.update()
             exit_game.update()
 
-            if self.high_score != 0:
-                high_score.update()
+            high_score.update()
+            last_score.update()
 
             mpos = pygame.mouse.get_pos()
 
@@ -85,8 +87,9 @@ class GameManager():
                         self._exit()
                     elif start_game.rect.collidepoint(mpos):
                         self._start_game()
-                        self.player.reset()
+                        last_score.set_title(self.last_score_text.format(self.score))
                         high_score.set_title(self.high_score_text.format(self.high_score))
+                        self.player.reset()
 
             self.player.update()
 
