@@ -2,7 +2,7 @@
 
 A [Squares 2](http://www.albinoblacksheep.com/games/squares2) clone using `Python3` and [PyGame](http://pygame.org/hifi.html).
 
-![Squares2 Image](docs/squares.png)
+<kbd><img src="docs/squares.png"></kbd>
 
 ## Setup
 
