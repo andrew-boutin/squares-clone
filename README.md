@@ -2,6 +2,8 @@
 
 A [Squares 2](http://www.albinoblacksheep.com/games/squares2) clone using `Python3` and [PyGame](http://pygame.org/hifi.html).
 
+![Squares2 Image](docs/squares.png)
+
 ## Setup
 
 This was written for Linux Ubuntu 14.04.
